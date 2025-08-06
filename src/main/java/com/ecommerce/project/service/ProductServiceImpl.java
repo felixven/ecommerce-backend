@@ -47,11 +47,14 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private FileService fileService;
 
-    @Value("${project.image}")
-    private String path;
+//    @Value("${project.image}")
+//    private String path;
 
-    @Value("${image.base.url}")
-    private String imageBaseUrl;
+//    @Value("${image.base.url}")
+//    private String imageBaseUrl;
+
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
@@ -71,7 +74,11 @@ public class ProductServiceImpl implements ProductService {
 
         if (isProductNotPresent) {
             Product product = modelMapper.map(productDTO, Product.class);
-            product.setImage("default.png");
+            String defaultImageUrl = "https://res.cloudinary.com/drbhr7kmb/image/upload/v1754286944/default_o4fznm.png";
+            String imageUrl = (productDTO.getImage() != null && !productDTO.getImage().isEmpty())
+                    ? productDTO.getImage()
+                    : defaultImageUrl;
+            product.setImage(imageUrl);
             product.setCategory(category);
             double specialPrice = product.getPrice() -
                     ((product.getDiscount() * 0.01) * product.getPrice());
@@ -112,7 +119,8 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDTO> productDTOS = products.stream()
                 .map(product -> {
                     ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
-                    productDTO.setImage(constructImageUrl(product.getImage()));
+                    //productDTO.setImage(constructImageUrl(product.getImage()));
+                    productDTO.setImage(product.getImage());
                     return productDTO;
                 })
                 .toList();
@@ -131,9 +139,9 @@ public class ProductServiceImpl implements ProductService {
         return productResponse;
     }
 
-    private String constructImageUrl(String imageName) {
-        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
-    }
+//    private String constructImageUrl(String imageName) {
+//        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
+//    }
 
     @Override
     public ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -255,10 +263,13 @@ public class ProductServiceImpl implements ProductService {
 
         // Upload image to server
         // Get the file name of uploaded image
-        String fileName = fileService.uploadImage(path, image);
+        //String fileName = fileService.uploadImage(path, image);
+        String imageUrl = imageService.upload(image);
+
 
         // Updating the new file name to the product
-        productFromDb.setImage(fileName);
+        //productFromDb.setImage(fileName);
+        productFromDb.setImage(imageUrl);
 
         // Save updated product
         Product updatedProduct = productRepository.save(productFromDb);

@@ -98,4 +98,8 @@ public class JwtUtils {
         }
         return false;
     }
+
+    public String generateJwtToken(UserDetailsImpl userDetails) {
+        return generateTokenFromUsername(userDetails.getUsername());
+    }
 }
