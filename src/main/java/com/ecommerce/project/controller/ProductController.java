@@ -80,4 +80,6 @@ public class ProductController {
         ProductDTO updatedProduct = productService.updateProductImage(productId, image);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
+
+
 }

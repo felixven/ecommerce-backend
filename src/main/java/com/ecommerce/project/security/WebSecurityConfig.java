@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 //import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -86,6 +87,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/test/**").permitAll()
                               //  .requestMatchers("/api/addresses/**").authenticated()
                                 .requestMatchers("/images/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/products/*/image").permitAll()
                                 //.requestMatchers("/api/order/linepay-confirm/**").permitAll()
                                 .anyRequest().authenticated()
                 );

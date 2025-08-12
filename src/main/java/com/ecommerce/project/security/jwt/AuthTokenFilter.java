@@ -28,13 +28,18 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        logger.debug("Authorization header: {}", request.getHeader("Authorization"));
+        String jwt = parseJwt(request);
+        logger.debug("Parsed JWT: {}", jwt);
+
         logger.debug("AuthTokenFilter called for URI: {}", request.getRequestURI());
         try {
             // 🔽 修改這一行：從 header 拿 token（改為呼叫新的 parseJwt 方法）
-            String jwt = parseJwt(request);
+            //String jwt = parseJwt(request);
 
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -69,13 +74,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     // ✅ 新增的方法（從 Authorization header 拿 JWT）
     private String parseJwt(HttpServletRequest request) {
+        // 優先從 Authorization header 抓 token
         String headerAuth = request.getHeader("Authorization");
-        logger.debug("Authorization header: {}", headerAuth);
 
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7); // 拿掉 "Bearer "
+        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7); // 拿掉 Bearer 空格
         }
 
-        return null;
+        // 沒有 header 才從 Cookie 抓（保留原本的）
+        return jwtUtils.getJwtFromCookies(request);
     }
+
 }

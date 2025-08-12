@@ -257,6 +257,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
+
+        System.out.println("收到圖片請求");
+        if (image != null) {
+            System.out.println("圖片名稱: " + image.getOriginalFilename());
+            System.out.println("圖片大小: " + image.getSize() + " bytes");
+        } else {
+            System.out.println("沒有收到檔案");
+        }
         // Get the product from DB
         Product productFromDb = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));

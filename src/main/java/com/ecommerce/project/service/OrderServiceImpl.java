@@ -111,11 +111,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO createOrderBeforeLinePay(String email, Long addressId, Double totalAmount, List<OrderItemDTO> orderItems) {
+
+        // 從購物車計算折扣後金額
+        Cart cart = cartRepository.findCartByEmail(email);
+        if (cart == null) {
+            throw new ResourceNotFoundException("Cart", "email", email);
+        }
+        double finalTotal = cart.getTotalPrice();
+
+
         // 建立 Order
         Order order = new Order();
         order.setEmail(email);
         order.setOrderDate(LocalDate.now());
-        order.setTotalAmount(totalAmount);
+        order.setTotalAmount(finalTotal);
         order.setOrderStatus("PENDING");
 
         // 設定 Address
@@ -127,15 +136,27 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItemList = orderItems.stream().map(dto -> {
             OrderItem item = new OrderItem();
             item.setQuantity(dto.getQuantity());
-            item.setDiscount(dto.getDiscount());
-            item.setOrderedProductPrice(dto.getOrderedProductPrice());
-            item.setProduct(productRepository.findById(dto.getProduct().getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found")));
-            item.setOrder(order); // 反向關聯
+
+            Product product = productRepository.findById(dto.getProduct().getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            item.setProduct(product);
+            item.setOrder(order);
+
+            // 從購物車找到相同商品
+            CartItem cartItem = cart.getCartItems().stream()
+                    .filter(ci -> ci.getProduct().getProductId().equals(product.getProductId()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("CartItem not found"));
+
+            // ✅ 關鍵兩行：來源改為與 Stripe 相同
+            item.setDiscount(cartItem.getDiscount());
+            item.setOrderedProductPrice(cartItem.getProductPrice());
+
             return item;
-        }).collect(Collectors.toList());
+        }).toList();
 
         order.setOrderItems(orderItemList);
+
 
         // 儲存到資料庫
         Order savedOrder = orderRepository.save(order);

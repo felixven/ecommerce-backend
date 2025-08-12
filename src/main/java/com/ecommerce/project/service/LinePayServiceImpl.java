@@ -1,17 +1,19 @@
 package com.ecommerce.project.service;
 
-import com.ecommerce.project.model.Order;
-import com.ecommerce.project.model.Payment;
+import com.ecommerce.project.model.*;
 import com.ecommerce.project.payload.LinePayConfirmDTO;
 import com.ecommerce.project.payload.LinePayRequestDTO;
 
 // LinePayServiceImpl.java
 
+import com.ecommerce.project.repositories.CartRepository;
 import com.ecommerce.project.repositories.OrderRepository;
 import com.ecommerce.project.repositories.PaymentRepository;
+import com.ecommerce.project.repositories.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,12 @@ public class LinePayServiceImpl implements LinePayService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public String reserve(LinePayRequestDTO requestDTO) {
@@ -109,7 +117,7 @@ public class LinePayServiceImpl implements LinePayService {
         return Base64.getEncoder().encodeToString(hmac);
     }
 
-
+    @Transactional
     public String confirmPayment(String transactionId, LinePayConfirmDTO confirmDTO) {
         String endpointPath = "/v3/payments/" + transactionId + "/confirm";
         String endpointUrl = apiUrl + endpointPath;
@@ -168,6 +176,30 @@ public class LinePayServiceImpl implements LinePayService {
             // ✅ 儲存資料到 DB
             Order order = orderRepository.findById(confirmDTO.getOrderId())
                     .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            // ✅ 扣庫存（依照訂單項目）
+            for (OrderItem item : order.getOrderItems()) {
+                Product p = item.getProduct();
+                int newQty = p.getQuantity() - item.getQuantity();
+                if (newQty < 0) {
+                    throw new RuntimeException("Insufficient stock for productId=" + p.getProductId());
+                }
+                p.setQuantity(newQty);
+                productRepository.save(p);
+            }
+
+            // ✅ 清購物車（用 email 對應的 cart）
+            Cart cart = cartRepository.findCartByEmail(order.getEmail());
+            if (cart != null && cart.getCartItems() != null) {
+                // 如果你有 cartService 的刪除方法，改用它（會處理關聯與回寫）：
+                // for (OrderItem item : order.getOrderItems()) {
+                //     cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
+                // }
+
+                // 沒有 cartService 的情況，直接清空這筆購物車（簡單暴力且安全）
+                cart.getCartItems().clear();
+                cartRepository.save(cart);
+            }
 
             // 2️⃣ 建立並儲存 Payment 實體
             Payment payment = new Payment();
