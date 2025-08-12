@@ -55,6 +55,8 @@ public class OrderServiceImpl implements OrderService {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
+        //改了這裡
+
         Order order = new Order();
         order.setEmail(emailId);
         order.setOrderDate(LocalDate.now());
