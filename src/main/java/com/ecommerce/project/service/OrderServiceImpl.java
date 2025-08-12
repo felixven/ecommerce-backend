@@ -81,8 +81,12 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setDiscount(cartItem.getDiscount());
-            orderItem.setOrderedProductPrice(cartItem.getProductPrice());
+            // 成交單價（通常是 specialPrice / 購物車已算好的價）
+            double unitPaid = cartItem.getProductPrice();
+            // 每件折扣金額 = 原價 - 成交價（避免負值）
+            double unitDiscount = Math.max(0, cartItem.getProduct().getPrice() - unitPaid);
+            orderItem.setOrderedProductPrice(unitPaid);
+            orderItem.setDiscount(unitDiscount);
             orderItem.setOrder(savedOrder);
             orderItems.add(orderItem);
         }
@@ -151,8 +155,10 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new RuntimeException("CartItem not found"));
 
             // ✅ 關鍵兩行：來源改為與 Stripe 相同
-            item.setDiscount(cartItem.getDiscount());
-            item.setOrderedProductPrice(cartItem.getProductPrice());
+            double unitPaid = cartItem.getProductPrice();
+            double unitDiscount = Math.max(0, product.getPrice() - unitPaid);
+            item.setOrderedProductPrice(unitPaid);
+            item.setDiscount(unitDiscount);
 
             return item;
         }).toList();
