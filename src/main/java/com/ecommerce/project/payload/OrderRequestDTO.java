@@ -17,5 +17,6 @@ public class OrderRequestDTO {
     private String pgStatus;
     private String pgResponseMessage;
     private Double totalAmount;
+    private Long orderId;                 // ★ 0821新增：對應 create-for-linepay 建出的預訂單
     private List<OrderItemDTO> orderItems;
 }
