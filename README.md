@@ -39,17 +39,21 @@
 
 ## 本機安裝與使用
 
-1. 取得原始碼
+1. 建立資料庫
+   ```bash
+   CREATE DATABASE ecom_db;
+   ```
+2. 取得原始碼
    ```bash
    git clone https://github.com/felixven/ecommerce-backend.git
    cd commerce-backend
    ```
    
-2. 設定資料庫與環境  
+3. 設定資料庫與環境  
    編輯 `src/main/resources/application.properties`，填入以下內容：
 
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/sb-ecom
+   spring.datasource.url=jdbc:mysql://localhost:3306/ecom_db
    spring.datasource.username=root
    spring.datasource.password=yourpassword
 
@@ -60,35 +64,16 @@
    jwt.secret=your-secret-key
    ```
    
-3. 啟動後端服務
+4. 啟動後端服務
    ```bash
    ./mvnw spring-boot:run
    #預設服務位置：http://localhost:8080
    ```
-   
-4. 資料庫建立預設Admin帳號與角色，請手動在資料庫執行以下 SQL：
-   ```bash
-   USE todo_db;
-   
-   INSERT INTO roles (name)
-   VALUES ('ROLE_ADMIN'), ('ROLE_USER');
-   
-   -- 預先建立Admin權限資料
-   INSERT INTO users (username, email, password)
-   VALUES ('admin', 'admin@example.com', '$2a$10$d26pt/jjWFnSlLQkWCNWFuwbZf0A97Pg6ZGbw8ZejYoEx3V1dPWay');
-   
-   -- 指派管理員角色（請依實際 ID 調整）
-   INSERT INTO users_roles (user_id, role_id)
-   VALUES (1, 1);
-   ```
-   
 5. 測試 API (Postman Collection)
-  - 匯入本專案提供的 [Postman Collection](docs/todo-api.postman_collection.json)   
-   - 開啟 Postman，在測試請求時：
-     - 於 **Authorization** 標籤頁 → **Auth Type** 選擇 **Basic Auth**
-     - 輸入帳號與密碼：
-       - 帳號：`admin`  
-       - 密碼：`admin`  
+  - 匯入本專案提供的 [Postman Collection](docs/todo-api.postman_collection.json)
+  - 匯入本專案提供的 [Postman Environment](docs/local_env.json)
+  - 開啟 Postman，選擇 `local_env` 環境，點選 **Run Collection**
+  
 - 範例測試流程（Admin權限可執行所有Api）：  
      1. 會員註冊
         **Request** 
