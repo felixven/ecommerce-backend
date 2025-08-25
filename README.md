@@ -58,8 +58,9 @@
 
    ```properties
    spring.datasource.url=jdbc:mysql://localhost:3306/ecom_db
-   spring.datasource.username=root
-   spring.datasource.password=yourpassword
+   spring.datasource.username=<yourusername>
+   spring.datasource.password=<yourpassword>
+   # 請將 <yourusername> 與 <yourpassword> 替換為您本機 MySQL 的username和password。
 
    spring.jpa.hibernate.ddl-auto=update
    spring.jpa.show-sql=true
@@ -86,7 +87,7 @@
   - 匯入本專案提供的 [Postman Environment](docs/local_env.json)
   - 開啟 Postman，選擇 `local_env` 環境，點選 **Run Collection**
     
-8. 若要實測 Stripe 與 Line Pay API，請先至官方申請 Sandbox Key，並在專案啟動前設定以下環境變數：
+8. 若要實測 Stripe 與 Line Pay API，請在專案啟動前設定以下環境變數：
   - STRIPE_SECRET_KEY
   - LINEPAY_CHANNEL_ID
   - LINEPAY_KEY
