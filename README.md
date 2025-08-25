@@ -50,7 +50,7 @@
 2. 取得原始碼
    ```bash
    git clone https://github.com/felixven/ecommerce-backend.git
-   cd commerce-backend
+   cd ecommerce-backend
    ```
    
 3. 設定資料庫與環境  
