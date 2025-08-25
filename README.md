@@ -9,13 +9,17 @@
 
 # 功能介紹
 - 使用者管理：註冊 / 登入 / JWT Token 驗證。
-- 商品類型/商品 CRUD API：建立、更新、刪除、查詢。
+- 商品類型/商品 CRUD：建立、更新、刪除、查詢。
 - 購物車：加入商品、調整數量、刪除商品。
-- 地址管理 CRUD：建立、更新、刪除、查詢。
-- 結帳流程：使用LinePay或Stripe付款、送出訂單。
+- 地址 CRUD：建立、更新、刪除、查詢。
+- 訂單結帳：使用LinePay或Stripe付款、送出訂單。
 - 訂單管理：歷史訂單狀態查詢。
 
 # 系統架構
+### 系統架構圖
+下圖為系統功能架構圖，將前述五大模組與其細部功能以總覽方式呈現：
+<br/>
+
 ### 程式分層設計
 後端採用 **分層架構設計**，依職責將程式劃分Controller、Service、Repository 與 Model，各層責任如下：
 - **Controller 層**：接收Api請求，回傳 JSON 回應（例如：`ProductController`, `OrderController`）  
@@ -69,7 +73,15 @@
    ./mvnw spring-boot:run
    #預設服務位置：http://localhost:8080
    ```
-5. 測試 API (Postman Collection)
+5. 預設帳號
+   專案啟動後會自動建立預設帳號，可直接登入測試，亦可透過註冊 API 建立新帳號：
+   - Admin帳號
+     - 帳號：
+     - 密碼：
+   - User帳號
+     - 帳號：
+     - 密碼： 
+7. 測試 API (Postman Collection)
   - 匯入本專案提供的 [Postman Collection](docs/todo-api.postman_collection.json)
   - 匯入本專案提供的 [Postman Environment](docs/local_env.json)
   - 開啟 Postman，選擇 `local_env` 環境，點選 **Run Collection**
