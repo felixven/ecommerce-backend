@@ -160,4 +160,10 @@ public class AuthController {
                         cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
     }
+
+    @GetMapping("/debug/auth")
+    public void debugAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authorities = " + auth.getAuthorities());
+    }
 }

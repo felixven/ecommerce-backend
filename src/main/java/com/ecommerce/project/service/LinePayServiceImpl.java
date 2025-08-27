@@ -32,17 +32,14 @@ import java.util.*;
 @RequiredArgsConstructor
 public class LinePayServiceImpl implements LinePayService {
 
-    @Value("${linepay.channel.id}")
-    private String channelId;
-
-    @Value("${linepay.channel.secret}")
-    private String channelSecret;
-
-    @Value("${linepay.api.url}")
-    private String apiUrl;
-
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${linepay.channel.id}")
+    private String channelId;
+    @Value("${linepay.channel.secret}")
+    private String channelSecret;
+    @Value("${linepay.api.url}")
+    private String apiUrl;
     @Autowired
     private OrderRepository orderRepository;
 
@@ -125,7 +122,7 @@ public class LinePayServiceImpl implements LinePayService {
         // 產生 nonce
         String nonce = UUID.randomUUID().toString();
 
-        // 🔒 準備 JSON body（記得順序、格式一樣才會 match）
+        //準備 JSON body（記得順序、格式一樣才會 match）
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("amount", confirmDTO.getAmount());
         bodyMap.put("currency", confirmDTO.getCurrency());
@@ -139,7 +136,7 @@ public class LinePayServiceImpl implements LinePayService {
             throw new RuntimeException("Failed to convert request body to JSON", e);
         }
 
-        // 💡 計算簽名：secret + path + body + nonce
+        //計算簽名：secret + path + body + nonce
         String rawSignature = channelSecret + endpointPath + requestBody + nonce;
         String signature;
         try {
@@ -156,10 +153,10 @@ public class LinePayServiceImpl implements LinePayService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-LINE-ChannelId", channelId);
-        headers.set("X-LINE-Authorization", signature);          // ✅ 改對 header 名稱
-        headers.set("X-LINE-Authorization-Nonce", nonce);        // ✅ 改對 header 名稱
+        headers.set("X-LINE-Authorization", signature);          //改對 header 名稱
+        headers.set("X-LINE-Authorization-Nonce", nonce);        //改對 header 名稱
 
-        // 🔍 log for debug
+        // log for debug
         log.info("[LinePay] 正在送出確認請求: {}", requestBody);
         log.info("[LinePay] 簽章: {}", signature);
 
@@ -170,56 +167,30 @@ public class LinePayServiceImpl implements LinePayService {
         log.info("[LinePay] 回應狀態碼: {}", response.getStatusCode());
         log.info("[LinePay] 回應內容: {}", response.getBody());
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            log.info("[LinePay] LINE Pay 確認成功！");
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.error("Confirm Failed: {}", response.getBody());
+            throw new RuntimeException("LinePay confirmation failed (HTTP)");
+        }
 
-            // ✅ 儲存資料到 DB
-            Order order = orderRepository.findById(confirmDTO.getOrderId())
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
+        //只解析 returnCode，不動 DB
+        try {
+            JsonNode root = objectMapper.readTree(response.getBody());
+            String returnCode = root.path("returnCode").asText();
+            String returnMessage = root.path("returnMessage").asText();
 
-            // ✅ 扣庫存（依照訂單項目）
-            for (OrderItem item : order.getOrderItems()) {
-                Product p = item.getProduct();
-                int newQty = p.getQuantity() - item.getQuantity();
-                if (newQty < 0) {
-                    throw new RuntimeException("Insufficient stock for productId=" + p.getProductId());
-                }
-                p.setQuantity(newQty);
-                productRepository.save(p);
+            if ("0000".equals(returnCode)) {
+                log.info("[LinePay] 確認成功（returnCode=0000）");
+                // 不在這裡做任何資料庫寫入
+                // 讓前端／或你的後端下一步呼叫統一入口完成落袋
+                return "CONFIRMED";
+            } else {
+                log.error("[LinePay] 確認失敗：{} {}", returnCode, returnMessage);
+                throw new RuntimeException("LinePay confirmation failed: " + returnCode + " " + returnMessage);
             }
-
-            // ✅ 清購物車（用 email 對應的 cart）
-            Cart cart = cartRepository.findCartByEmail(order.getEmail());
-            if (cart != null && cart.getCartItems() != null) {
-                // 如果你有 cartService 的刪除方法，改用它（會處理關聯與回寫）：
-                // for (OrderItem item : order.getOrderItems()) {
-                //     cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
-                // }
-
-                // 沒有 cartService 的情況，直接清空這筆購物車（簡單暴力且安全）
-                cart.getCartItems().clear();
-                cartRepository.save(cart);
-            }
-
-            // 2️⃣ 建立並儲存 Payment 實體
-            Payment payment = new Payment();
-            payment.setPgName(confirmDTO.getPgName());
-            payment.setPgPaymentId(confirmDTO.getPgPaymentId());
-            payment.setPgStatus(confirmDTO.getPgStatus());
-            payment.setPgResponseMessage(confirmDTO.getPgResponseMessage());
-            payment.setPaymentMethod("LinePay");
-            payment.setOrder(order); // 關聯這筆付款到訂單
-            paymentRepository.save(payment);
-
-            // 3️⃣ 更新 Order 狀態
-            order.setOrderStatus("Order Accepted !");
-            order.setPayment(payment); // 關聯付款
-            orderRepository.save(order);
-
-            return "Payment Confirmed!";
-        } else {
-            log.error("Confirm Failed: " + response.getBody());
-            throw new RuntimeException("LinePay confirmation failed");
+        } catch (Exception parseEx) {
+            // 保守處理：若官方回應格式變動導致解析失敗，直接視為失敗，比較安全
+            log.error("[LinePay] 回應解析失敗", parseEx);
+            throw new RuntimeException("LinePay confirmation parse error", parseEx);
         }
     }
 

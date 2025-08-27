@@ -40,9 +40,12 @@ public class OrderController {
 
 
     @PostMapping("/order/users/payments/{paymentMethod}")
-    public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod, @RequestBody OrderRequestDTO orderRequestDTO) {
+    public ResponseEntity<OrderDTO> orderProducts(
+            @PathVariable String paymentMethod,
+            @RequestBody OrderRequestDTO orderRequestDTO
+    ) {
         String emailId = authUtil.loggedInEmail();
-        System.out.println("orderRequestDTO DATA: " + orderRequestDTO);
+
         OrderDTO order = orderService.placeOrder(
                 emailId,
                 orderRequestDTO.getAddressId(),
@@ -50,10 +53,13 @@ public class OrderController {
                 orderRequestDTO.getPgName(),
                 orderRequestDTO.getPgPaymentId(),
                 orderRequestDTO.getPgStatus(),
-                orderRequestDTO.getPgResponseMessage()
+                orderRequestDTO.getPgResponseMessage(),
+                orderRequestDTO.getOrderId()          //新加的參數
         );
+
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
+
 
     @PostMapping("/order/stripe-client-secret")
     public ResponseEntity<String> createStripeClientSecret(@RequestBody StripePaymentDTO stripePaymentDTO) throws StripeException {
