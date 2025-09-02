@@ -1,0 +1,1366 @@
+{
+	"info": {
+		"_postman_id": "51d56dc9-9c73-48a5-8373-6b497c8dc25b",
+		"name": "Spring Boot Ecommerce API",
+		"description": "# Ecommerce API Collection\n\n##### 本 Collection 提供電商平台系統後端 API 測試，主要有以下功能模組：\n\n- **Auth**：會員註冊、登入、登出\n    \n- **Category**：商品分類建立、修改、查詢、刪除\n    \n- **Product**：商品新增、搜尋、更新、刪除\n    \n- **Order**：建立訂單、查詢歷史訂單\n    \n- **Cart**：商品加入購物車、購物車查詢、商品數量更改、商品刪除\n    \n- **Address**：建立地址、修改地址、查詢地址\n    \n- **LinePay**：建立LinePay預訂單紀錄購物車內容並產生orderId、建立Line Pay付款預約請求以取得付款網址 (paymentUrl)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40235919"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Admin Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData.token;",
+									"pm.environment.set(\"admin_bearer_token\", token);",
+									"pm.test(\"admin登入成功\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"admin\",\n    \"password\":\"adminPass\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signin"
+							]
+						},
+						"description": "#### Admin 登入，取得 JWT Token。"
+					},
+					"response": []
+				},
+				{
+					"name": "User Sign Up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.test(\"註冊訊息正確，User帳號註冊成功\", function () {",
+									"    pm.expect(jsonData.message).to.eql(\"User registered successfully!\");",
+									"});",
+									"",
+									"pm.test(`回應訊息為: ${jsonData.message}`, function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"user3\",\n    \"email\":\"user3@example.com\",\n    \"password\":\"password3\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						},
+						"description": "#### 一般User註冊，建立使用者權限（ROLE_USER）帳號"
+					},
+					"response": []
+				},
+				{
+					"name": "User Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData.token;",
+									"pm.environment.set(\"user_bearer_token\", token);",
+									"pm.test(\"user登入成功\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"user3\",\n    \"password\":\"password3\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signin"
+							]
+						},
+						"description": "#### 一般User登入，取得 JWT Token。"
+					},
+					"response": []
+				}
+			],
+			"description": "#### 本資料夾提供會員註冊、登入、登出之API測試。"
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "Create Category 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let categoryId=jsonData.categoryId;",
+									"let categoryName=jsonData.categoryName;",
+									"pm.environment.set(\"categoryId\", jsonData.categoryId);",
+									"pm.environment.set(\"oldCategoryName\", jsonData.categoryName);",
+									"",
+									"pm.test(`Category (名字: ${categoryName}, id: ${categoryId})建立成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"categoryName\":\"3C\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories"
+							]
+						},
+						"description": "#### 建立新的商品分類。"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let categoryId=jsonData.categoryId;",
+									"let categoryName=jsonData.categoryName;",
+									"pm.environment.set(\"categoryId2\", jsonData.categoryId);",
+									"",
+									"pm.test(`Category (名字: ${categoryName}, id: ${categoryId})建立成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"categoryName\":\"食品\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let id = pm.environment.get(\"categoryId\");",
+									"let oldName = pm.environment.get(\"oldCategoryName\");",
+									"let jsonData = pm.response.json();",
+									"let newName = jsonData.categoryName;",
+									"",
+									"// 更新舊名字 → 之後還能繼續用",
+									"pm.environment.set(\"oldCategoryName\", newName);",
+									"",
+									"pm.test(`Category ${id} 更新成功 (由 ${oldName}更改為 ${newName})`, function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"categoryName\":\"3C產品\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories",
+								"{{categoryId}}"
+							]
+						},
+						"description": "#### 修改指定特定商品類型（categoryId）資料。"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let count = jsonData.content.length;",
+									"",
+									"pm.test(`Category查詢成功，共有 ${count} 個 category`, function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "pageSize",
+									"value": "100",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "categoryName",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc",
+									"disabled": true
+								}
+							]
+						},
+						"description": "#### 查詢所有商品分類。"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Category2刪除成功\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"categoryName\":\"3C產品\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories/{{categoryId2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories",
+								"{{categoryId2}}"
+							]
+						},
+						"description": "#### 刪除商品分類。"
+					},
+					"response": []
+				}
+			],
+			"description": "#### 本資料夾提供商品分類建立、修改、查詢、刪除之API測試"
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "AddProduct 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.environment.set(\"productId\", jsonData.productId);",
+									"",
+									"if (jsonData.productName) {",
+									"    let name = jsonData.productName;",
+									"    let keyword = name.substring(2, name.length - 2);",
+									"    pm.environment.set(\"keyword\", keyword);",
+									"",
+									"    pm.environment.set(\"oldProductName\", name);",
+									"}",
+									"",
+									"pm.test(`Product 建立成功 (名字: ${jsonData.productName}, id: ${jsonData.productId})`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"智慧型手機 XPhone\",\n    \"description\": \"6.5吋 AMOLED 全螢幕，支援 5G 連線，配備 128GB 儲存空間與 4800 萬畫素雙鏡頭，兼顧效能與電池續航，適合日常娛樂與工作使用。\",\n    \"quantity\": 50,\n    \"price\": 18000,\n    \"discount\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories/{{categoryId}}/product",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories",
+								"{{categoryId}}",
+								"product"
+							]
+						},
+						"description": "#### 在指定的商品類型中加入新的商品名稱、介紹、數量、價格等資訊"
+					},
+					"response": []
+				},
+				{
+					"name": "AddProduct 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.environment.set(\"productId2\", jsonData.productId);",
+									"",
+									"if (jsonData.productName) {",
+									"    let name = jsonData.productName",
+									"    let keyword = name.substring(2, name.length - 2);",
+									"    pm.environment.set(\"keyword2\", keyword);",
+									"}",
+									"",
+									"pm.test(`Product 建立成功 (名字: ${jsonData.productName}, id: ${jsonData.productId})`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"平板電腦 Tab X10\",\n    \"description\": \"10.5 吋全螢幕設計，搭載八核心處理器與 128GB 儲存空間，支援觸控筆與外接鍵盤，適合學習、娛樂與日常辦公使用。\",\n    \"quantity\": 30,\n    \"price\": 12000,\n    \"discount\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories/{{categoryId}}/product",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories",
+								"{{categoryId}}",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddProduct 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.environment.set(\"productId3\", jsonData.productId);",
+									"",
+									"",
+									"pm.test(`Product 建立成功 (名字: ${jsonData.productName}, id: ${jsonData.productId})`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"27 吋 FHD 螢幕\",\n    \"description\": \"27 吋全高清顯示器，具備窄邊框設計與護眼模式，支援 HDMI 與 DisplayPort 輸入，適合辦公、學習與娛樂使用。\",\n    \"quantity\": 30,\n    \"price\": 5200,\n    \"discount\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/categories/{{categoryId}}/product",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"categories",
+								"{{categoryId}}",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"let id = pm.environment.get(\"productId\");         ",
+									"let oldName = pm.environment.get(\"oldProductName\");",
+									"let newName = jsonData.productName;                ",
+									"",
+									"pm.environment.set(\"oldProductName\", newName);",
+									"",
+									"pm.test(`Product (id: ${id}) 更新成功，從 ${oldName} 改為 ${newName}`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"  pm.expect(newName).not.eql(oldName); ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n \"productName\": \"智慧型手機 XPhone12\",\n    \"description\": \"6.5吋 AMOLED 全螢幕，支援 5G 連線，配備 128GB 儲存空間與 4800 萬畫素雙鏡頭，兼顧效能與電池續航，適合日常娛樂與工作使用。\",\n    \"quantity\": 60,\n    \"price\": 18000,\n    \"discount\": 15,\n    \"specialPrice\": 15300\n }\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "#### 透過商品Id（productId）刪除更新指定商品的資訊。"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let count = jsonData.content.length;",
+									"",
+									"pm.test(`所有Product查詢成功，共有${count}項 product`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTczNjQ0MTMwNSwiZXhwIjoxNzM2NDQ0MzA1fQ.4ZRmkWgGu0PiceEhtWF2pfKb-DyYhH8_UmIM5DY6KgZF-tC8fFe6yVg_paZ5edua0TSrFu5GJvMrKhc2prYRPw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/public/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"products"
+							]
+						},
+						"description": "#### 查詢所有商品資料。"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products By Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let count = jsonData.content.length;",
+									"",
+									"let categoryId = pm.environment.get(\"categoryId\");",
+									"",
+									"pm.test(`從 Category （id: ${categoryId}) 查詢到的商品數量:${count}`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"// pm.test(\"Product查詢成功\", function () {",
+									"//   pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"",
+									"//   let jsonData = pm.response.json();",
+									"//   let categoryId = pm.environment.get(\"categoryId\");",
+									"",
+									"//   pm.expect(jsonData).to.be.an(\"object\");",
+									"//   pm.expect(jsonData.content).to.be.an(\"array\");",
+									"",
+									"//   console.log(`從 categoryId=${categoryId} 查詢到的商品數量:`, jsonData.content.length);",
+									"",
+									"//   pm.expect(jsonData.content.length).to.be.above(0);",
+									"// });",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/categories/{{categoryId}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"categories",
+								"{{categoryId}}",
+								"products"
+							]
+						},
+						"description": "#### 透過指定的商品類型 (categoryId) 查詢該分類底下的商品，並支援分頁與排序。"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let productId3=pm.environment.get(\"productId3\");",
+									"",
+									"pm.test(\"Product id: ${productId3} 刪除成功\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n \"productName\": \"智慧型手機 XPhone12\",\n    \"description\": \"6.5吋 AMOLED 全螢幕，支援 5G 連線，配備 128GB 儲存空間與 4800 萬畫素雙鏡頭，兼顧效能與電池續航，適合日常娛樂與工作使用。\",\n    \"quantity\": 60,\n    \"price\": 18000,\n    \"discount\": 15,\n    \"specialPrice\": 15300\n }\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/products/{{productId3}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"products",
+								"{{productId3}}"
+							]
+						},
+						"description": "#### 透過商品Id（productId）刪除指定商品"
+					},
+					"response": []
+				}
+			],
+			"description": "#### 本資料夾提供商品建立，商品資料查詢、修改、刪除之API測試。"
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Add product 1 to cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"let productId=pm.environment.get(\"productId\");",
+									"pm.environment.set(\"cartId\", jsonData.cartId);",
+									"pm.test(`Product (id: ${productId}) 已成功加入購物車`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/products/{{productId}}/quantity/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"products",
+								"{{productId}}",
+								"quantity",
+								"1"
+							]
+						},
+						"description": "#### 透過商品Id（productId）將商品加入購物車，並指定數量。"
+					},
+					"response": []
+				},
+				{
+					"name": "Add product 2 to cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"let productId2=pm.environment.get(\"productId2\");",
+									"pm.environment.set(\"cartId\", jsonData.cartId);",
+									"pm.test(`Product (id: ${productId2}) 已成功加入購物車`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/products/{{productId2}}/quantity/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"products",
+								"{{productId2}}",
+								"quantity",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.environment.set(\"cartId\", jsonData.cartId);",
+									"",
+									"let productCount = jsonData.products.length;",
+									"",
+									"let totalPrice = jsonData.totalPrice;",
+									"",
+									"pm.test(`已取得購物車內容，共 ${productCount} 件商品，金額為 ${totalPrice}`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"  //pm.expect(productCount).to.be.above(0);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/users/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"users",
+								"cart"
+							]
+						},
+						"description": "#### 查詢登入中user的購物車"
+					},
+					"response": []
+				},
+				{
+					"name": "Update quantity of product in cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`Product (id: ${pm.environment.get(\"productId2\")}) 增加成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cart/products/{{productId2}}/quantity/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"products",
+								"{{productId2}}",
+								"quantity",
+								"add"
+							]
+						},
+						"description": "#### 在購物車內透過商品id（productId）修改商品數量。"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete product from cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(`Product (id: ${pm.environment.get(\"productId2\")}) 刪除成功`, function ()  {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{cartId}}/product/{{productId2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{cartId}}",
+								"product",
+								"{{productId2}}"
+							]
+						},
+						"description": "#### 在購物車內透過商品id（productId）刪除商品。"
+					},
+					"response": []
+				}
+			],
+			"description": "#### 本資料夾提供商品加入購物車、查詢購物車、修改購物車商品數量、刪除購物車商品之API測試。"
+		},
+		{
+			"name": "Address",
+			"item": [
+				{
+					"name": "Create Address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"pm.environment.set(\"addressId\", jsonData.addressId);",
+									"let addressId=jsonData.addressId;",
+									"pm.test(`Address (id: ${addressId}) 建立成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\":\"郝快樂\",\n    \"phoneNumber\":\"0988168168\",\n    \"city\":\"台中市\",\n    \"district\":\"中區\",\n    \"postalCode\":\"400\",\n    \"street\":\"快樂路16號\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"addresses"
+							]
+						},
+						"description": "#### 透過 JSON body 建立訂單寄送地址。"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let addressId=pm.environment.get(\"addressId\");",
+									"",
+									"pm.test(`Address (id: ${addressId}) 更改成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\":\"郝開心\",\n    \"phoneNumber\":\"0988168168\",\n    \"city\":\"台中市\",\n    \"district\":\"中區\",\n    \"postalCode\":\"400\",\n    \"street\":\"開心路168號\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/addresses/{{addressId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"addresses",
+								"{{addressId}}"
+							]
+						},
+						"description": "#### 透過地址id（addressId）修改指定地址。"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Addresses By Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let addressId=pm.environment.get(\"addressId\");",
+									"",
+									"pm.test(`Address (id: ${addressId}) 查詢成功`, function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/addresses/{{addressId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"addresses",
+								"{{addressId}}"
+							]
+						},
+						"description": "#### 透過地址id查詢地址"
+					},
+					"response": []
+				}
+			],
+			"description": "本資料夾提供地址建立、修改和查詢之API測試。"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api"
+		}
+	]
+}

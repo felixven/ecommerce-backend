@@ -1,0 +1,153 @@
+{
+	"id": "ba405b80-f040-4ddd-8fbb-327b6f165d3c",
+	"name": "Ecommerce API Environment Variables",
+	"values": [
+		{
+			"key": "admin_bearer_token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "user_bearer_token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "categoryId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "productId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "productId2",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "keyword2",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "addressId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "cartId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "cartResponse",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "orderBody",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "categoryId2",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "productId3",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "keyword",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "paymentUrl",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "adminId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "user1Id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "todoId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "firstItemId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "secondItemId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "firstMessageId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "secondMessageId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "oldCategoryName",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "oldProductName",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-08-28T12:13:24.417Z",
+	"_postman_exported_using": "Postman/11.60.2"
+}

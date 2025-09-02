@@ -18,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
-//import java.util.ReverseOrderListView;
+
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -73,12 +73,6 @@ public class CategoryServiceImpl implements CategoryService{
     public CategoryDTO deleteCategory(Long categoryId) {
         Category category=categoryRepository.findById(categoryId)
                 .orElseThrow(()->new ResourceNotFoundException("Category","categoryId",categoryId));
-//        List<Category> categories=categoryRepository.findAll();
-//        Category category=categories.stream()
-//                .filter(c->c.getCategoryId().equals(categoryId))
-//                .findFirst()
-//                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource Not Found"));
-
         categoryRepository.delete(category);
         return modelMapper.map(category,CategoryDTO.class);
     }
@@ -87,22 +81,9 @@ public class CategoryServiceImpl implements CategoryService{
     public CategoryDTO updateCategory(CategoryDTO categoryDTO, Long categoryId) {
 
         Category savedCategory=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","categoryId",categoryId));
-
         Category category=modelMapper.map(categoryDTO,Category.class);//category object
         category.setCategoryId(categoryId);
         savedCategory=categoryRepository.save(category);
         return modelMapper.map(savedCategory, CategoryDTO.class);
-//        Optional<Category> optionalCategory = categories.stream()
-//                .filter(c -> c.getCategoryId().equals(categoryId))
-//                .findFirst();
-//
-//        if(optionalCategory.isPresent()){
-//            Category existingCategory = optionalCategory.get();
-//            existingCategory.setCategoryName(category.getCategoryName());
-//            Category savedCategory=categoryRepository.save( existingCategory);
-//            return savedCategory;
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
-//        }
     }
 }

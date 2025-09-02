@@ -119,15 +119,15 @@ public class LinePayServiceImpl implements LinePayService {
         String endpointPath = "/v3/payments/" + transactionId + "/confirm";
         String endpointUrl = apiUrl + endpointPath;
 
-        // 產生 nonce
+        // generate nonce
         String nonce = UUID.randomUUID().toString();
 
-        //準備 JSON body（記得順序、格式一樣才會 match）
+        //JSON body
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("amount", confirmDTO.getAmount());
         bodyMap.put("currency", confirmDTO.getCurrency());
 
-        // 將 body 轉成 JSON 字串
+        // convert body to JSON
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
         try {
@@ -136,7 +136,7 @@ public class LinePayServiceImpl implements LinePayService {
             throw new RuntimeException("Failed to convert request body to JSON", e);
         }
 
-        //計算簽名：secret + path + body + nonce
+        //secret + path + body + nonce
         String rawSignature = channelSecret + endpointPath + requestBody + nonce;
         String signature;
         try {
@@ -149,18 +149,18 @@ public class LinePayServiceImpl implements LinePayService {
             throw new RuntimeException("Failed to generate signature", e);
         }
 
-        // 設定 HTTP headers
+        //HTTP headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-LINE-ChannelId", channelId);
-        headers.set("X-LINE-Authorization", signature);          //改對 header 名稱
-        headers.set("X-LINE-Authorization-Nonce", nonce);        //改對 header 名稱
+        headers.set("X-LINE-Authorization", signature);
+        headers.set("X-LINE-Authorization-Nonce", nonce);
 
         // log for debug
         log.info("[LinePay] 正在送出確認請求: {}", requestBody);
         log.info("[LinePay] 簽章: {}", signature);
 
-        // 發送請求
+        // send request
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(endpointUrl, entity, String.class);
 
@@ -172,7 +172,6 @@ public class LinePayServiceImpl implements LinePayService {
             throw new RuntimeException("LinePay confirmation failed (HTTP)");
         }
 
-        //只解析 returnCode，不動 DB
         try {
             JsonNode root = objectMapper.readTree(response.getBody());
             String returnCode = root.path("returnCode").asText();
@@ -180,15 +179,12 @@ public class LinePayServiceImpl implements LinePayService {
 
             if ("0000".equals(returnCode)) {
                 log.info("[LinePay] 確認成功（returnCode=0000）");
-                // 不在這裡做任何資料庫寫入
-                // 讓前端／或你的後端下一步呼叫統一入口完成落袋
                 return "CONFIRMED";
             } else {
                 log.error("[LinePay] 確認失敗：{} {}", returnCode, returnMessage);
                 throw new RuntimeException("LinePay confirmation failed: " + returnCode + " " + returnMessage);
             }
         } catch (Exception parseEx) {
-            // 保守處理：若官方回應格式變動導致解析失敗，直接視為失敗，比較安全
             log.error("[LinePay] 回應解析失敗", parseEx);
             throw new RuntimeException("LinePay confirmation parse error", parseEx);
         }

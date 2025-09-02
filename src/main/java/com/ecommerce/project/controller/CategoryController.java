@@ -17,12 +17,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-//    @GetMapping("/echo")
-//    public ResponseEntity<String> echoMessage(@RequestParam(name = "message", required = false) String message){
-//        //public ResponseEntity<String> echoMessage(@RequestParam(name = "message") String message){
-//        return new ResponseEntity<>("Echoed message: " + message, HttpStatus.OK);
-//    }
-    //http://localhost:8080/api/echo?/message="Hi"
 
     @GetMapping("/public/categories")
     //@RequestMapping(value = "/public/categories", method = RequestMethod.GET)
@@ -46,8 +40,7 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId){
 
             CategoryDTO deletedCategory = categoryService.deleteCategory(categoryId);
-            return new ResponseEntity<>(deletedCategory, HttpStatus.OK); //不同寫法
-            //return ResponseEntity.ok(status);//不同寫法
+            return new ResponseEntity<>(deletedCategory, HttpStatus.OK);
 
         }
 

@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 
 public interface OrderService {
-    // Stripe 舊流程：從購物車成單
+    // Stripe
     @Transactional
     OrderDTO placeOrder(
             String emailId,
@@ -19,7 +19,7 @@ public interface OrderService {
             String pgResponseMessage
     );
 
-    // Line Pay 新流程：用 orderId 把預訂單落袋
+    // Line Pay
     @Transactional
     OrderDTO placeOrder(
             String emailId,

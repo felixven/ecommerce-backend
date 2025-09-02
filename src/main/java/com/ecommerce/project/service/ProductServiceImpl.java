@@ -47,12 +47,6 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private FileService fileService;
 
-//    @Value("${project.image}")
-//    private String path;
-
-//    @Value("${image.base.url}")
-//    private String imageBaseUrl;
-
     @Autowired
     private ImageService imageService;
 
@@ -125,10 +119,6 @@ public class ProductServiceImpl implements ProductService {
                 })
                 .toList();
 
-//        if(products.isEmpty()){
-//            throw new APIException("No Products Exist!!!");
-//        }
-
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDTOS);
         productResponse.setPageNumber(pageProducts.getNumber());
@@ -138,10 +128,6 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setLastPage(pageProducts.isLast());
         return productResponse;
     }
-
-//    private String constructImageUrl(String imageName) {
-//        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
-//    }
 
     @Override
     public ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {

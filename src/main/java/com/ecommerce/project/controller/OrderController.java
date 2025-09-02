@@ -54,7 +54,7 @@ public class OrderController {
                 orderRequestDTO.getPgPaymentId(),
                 orderRequestDTO.getPgStatus(),
                 orderRequestDTO.getPgResponseMessage(),
-                orderRequestDTO.getOrderId()          //新加的參數
+                orderRequestDTO.getOrderId()
         );
 
         return new ResponseEntity<>(order, HttpStatus.CREATED);
@@ -88,8 +88,8 @@ public class OrderController {
         OrderDTO order = orderService.createOrderBeforeLinePay(
                 emailId,
                 dto.getAddressId(),
-                dto.getTotalAmount(), // 你可能還要補 totalAmount
-                dto.getOrderItems() // 你可能還要補這個
+                dto.getTotalAmount(),
+                dto.getOrderItems()
         );
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }

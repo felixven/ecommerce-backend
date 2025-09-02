@@ -31,11 +31,6 @@ public class AddressServiceImpl implements AddressService{
         addressesList.add(address);
         address.setUser(user);
         Address savedAddress = addressRepository.save(address);
-//        address.setUser(user);
-//        List<Address> addressesList = user.getAddresses();
-//        addressesList.add(address);
-//        user.setAddresses(addressesList);
-//        Address savedAddress = addressRepository.save(address);
         return modelMapper.map(savedAddress, AddressDTO.class);
     }
 
