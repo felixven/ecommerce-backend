@@ -5,7 +5,7 @@
 - 前端：以 React.js + Tailwind CSS 開發，提供使用者操作介面。
 - 後端：以 Spring Boot + MySQL 建立 RESTful API，並支援 JWT 驗證與授權。
 - 支付串接：支援 Line Pay 與 Stripe，模擬完整線上購物付款流程。
-- 本檔案為 **前端原始碼**，後端原始碼請見：[前端原始碼](https://github.com/felixven/ecommerce-frontend.git)
+- 本檔案為 **前端原始碼**，後端原始碼請見：[E-commerce | 前端原始碼](https://github.com/felixven/ecommerce-frontend.git)
 
 # 功能介紹
 - 使用者管理：註冊 / 登入 / JWT Token 驗證。
